@@ -86,9 +86,10 @@ filtered_df = df[
     (df["gender"].isin(gender))
     & (df["lunch"].isin(lunch))
     & (df["test preparation course"].isin(prep))
+    & (df["parental level of education"].isin(education))
+    & (df["performance"].isin(performance))
     & (df["math score"].between(math_range[0], math_range[1]))
 ]
-
 # ---------------- KPI CARDS ----------------
 st.subheader("📌 KPI Summary")
 

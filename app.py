@@ -90,6 +90,9 @@ filtered_df = df[
     & (df["performance"].isin(performance))
     & (df["math score"].between(math_range[0], math_range[1]))
 ]
+if filtered_df.empty:
+    st.warning("⚠ No data available for selected filters.")
+    st.stop()
 # ---------------- KPI CARDS ----------------
 st.subheader("📌 KPI Summary")
 

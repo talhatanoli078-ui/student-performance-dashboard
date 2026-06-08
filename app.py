@@ -88,7 +88,6 @@ iltered_df = df[
     & (df["test preparation course"].isin(prep))
     & (df["math score"].between(math_range[0], math_range[1]))
 ]
-is ko
 # ---------------- KPI CARDS ----------------
 st.subheader("📌 KPI Summary")
 

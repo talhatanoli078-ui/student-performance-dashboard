@@ -32,7 +32,17 @@ df["performance"] = pd.cut(
 # ---------------- TITLE ----------------
 st.title("📊 Student Performance Dashboard")
 st.markdown("Analyze student performance using interactive charts and filters.")
+education = st.sidebar.multiselect(
+    "Parent Education",
+    df["parental level of education"].unique(),
+    default=df["parental level of education"].unique()
+)
 
+performance = st.sidebar.multiselect(
+    "Performance",
+    df["performance"].unique(),
+    default=df["performance"].unique()
+)
 # ---------------- SIDEBAR ----------------
 st.sidebar.header("Filters")
 

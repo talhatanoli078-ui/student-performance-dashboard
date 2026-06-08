@@ -37,6 +37,11 @@ education = st.sidebar.multiselect(
     "Parent Education",
     df["parental level of education"].unique(),
     default=df["parental level of education"].unique()
+    education = st.sidebar.multiselect(
+    "Parent Education",
+    df["parental level of education"].unique(),
+    default=df["parental level of education"].unique()
+)
 )
 
 performance = st.sidebar.multiselect(

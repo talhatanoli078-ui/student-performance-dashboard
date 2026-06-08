@@ -82,17 +82,13 @@ math_range = st.sidebar.slider(
 )
 
 # ---------------- FILTER DATA ----------------
-filtered_df = df[
+iltered_df = df[
     (df["gender"].isin(gender))
     & (df["lunch"].isin(lunch))
     & (df["test preparation course"].isin(prep))
-    & (df["parental level of education"].isin(education))
-    & (df["performance"].isin(performance))
     & (df["math score"].between(math_range[0], math_range[1]))
 ]
-if filtered_df.empty:
-    st.warning("⚠ No data available for selected filters.")
-    st.stop()
+is ko
 # ---------------- KPI CARDS ----------------
 st.subheader("📌 KPI Summary")
 

@@ -32,29 +32,24 @@ df["performance"] = pd.cut(
 
 # ---------------- TITLE ----------------
 st.markdown("""
-<div style='text-align:center;padding:15px;
-background:#f0f2f6;border-radius:10px;'>
+<div style='
+text-align:center;
+padding:25px;
+border-radius:15px;
+background:linear-gradient(90deg,#4F46E5,#06B6D4);
+color:white;
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+'>
 
 <h1>🎓 Student Performance Analytics Dashboard</h1>
 
-<p>Interactive analysis of student exam performance with dynamic filters and visualizations.</p>
+<p style='font-size:18px;'>
+Interactive analysis of student exam performance with dynamic filters and visualizations.
+</p>
 
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("## 🎛 Dashboard Filters")
-
-education = st.sidebar.multiselect(
-    "🎓 Parent Education",
-    df["parental level of education"].unique(),
-    default=df["parental level of education"].unique()
-)
-
-performance = st.sidebar.multiselect(
-    "🏆 Performance Level",
-    df["performance"].unique(),
-    default=df["performance"].unique()
-)
 # ---------------- SIDEBAR ----------------
 st.sidebar.header("Filters")
 

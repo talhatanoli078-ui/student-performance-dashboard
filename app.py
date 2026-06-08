@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+plt.style.use("ggplot")
+sns.set_theme(style="whitegrid")
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="Student Performance Dashboard",

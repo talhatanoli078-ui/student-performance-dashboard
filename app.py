@@ -82,7 +82,7 @@ math_range = st.sidebar.slider(
 )
 
 # ---------------- FILTER DATA ----------------
-iltered_df = df[
+filtered_df = df[
     (df["gender"].isin(gender))
     & (df["lunch"].isin(lunch))
     & (df["test preparation course"].isin(prep))

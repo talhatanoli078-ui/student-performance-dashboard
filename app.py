@@ -16,6 +16,18 @@ def load_data():
   return pd.read_csv("StudentsPerformance csv")
 
 df = load_data()
+# ADD BELOW
+df["average_score"] = (
+    df["math score"] +
+    df["reading score"] +
+    df["writing score"]
+) / 3
+
+df["performance"] = pd.cut(
+    df["average_score"],
+    bins=[0,60,80,100],
+    labels=["Poor","Good","Excellent"]
+)
 
 # ---------------- TITLE ----------------
 st.title("📊 Student Performance Dashboard")

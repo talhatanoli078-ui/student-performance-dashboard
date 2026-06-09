@@ -1,9 +1,12 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+
+import plotly.express as px
+import plotly.graph_objects as go
+
 import seaborn as sns
 import matplotlib.pyplot as plt
-plt.style.use("ggplot")
-sns.set_theme(style="whitegrid")
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="Student Performance Dashboard",

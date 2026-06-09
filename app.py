@@ -1,26 +1,42 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-
 import plotly.express as px
 import plotly.graph_objects as go
 
-import seaborn as sns
-import matplotlib.pyplot as plt
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="Student Performance Dashboard",
-    page_icon="📊",
+    page_title="Student Performance Analytics",
+    page_icon="🎓",
     layout="wide"
 )
+
+# ---------------- CUSTOM CSS ----------------
+st.markdown("""
+<style>
+
+.main {
+    background-color: #0E1117;
+}
+
+.metric-container {
+    background: linear-gradient(135deg,#4F46E5,#06B6D4);
+    padding:15px;
+    border-radius:15px;
+    text-align:center;
+    color:white;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------- LOAD DATA ----------------
 @st.cache_data
 def load_data():
-  return pd.read_csv("StudentsPerformance csv")
+    return pd.read_csv("StudentsPerformance.csv")
 
 df = load_data()
-# ADD BELOW
+
+# ---------------- FEATURE ENGINEERING ----------------
 df["average_score"] = (
     df["math score"] +
     df["reading score"] +
@@ -29,37 +45,33 @@ df["average_score"] = (
 
 df["performance"] = pd.cut(
     df["average_score"],
-    bins=[0,60,80,100],
-    labels=["Poor","Good","Excellent"]
+    bins=[0, 60, 80, 100],
+    labels=["Poor", "Good", "Excellent"]
 )
 
-# ---------------- TITLE ----------------
+# ---------------- HEADER ----------------
 st.markdown("""
-<div style='
-text-align:center;
-padding:25px;
-border-radius:15px;
-background:linear-gradient(90deg,#4F46E5,#06B6D4);
-color:white;
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
-'>
-
-<h1>🎓 Student Performance Analytics Dashboard</h1>
-
-<p style='font-size:18px;'>
-Interactive analysis of student exam performance with dynamic filters and visualizations.
+<h1 style='text-align:center'>
+🎓 Student Performance Analytics Dashboard
+</h1>
+<p style='text-align:center'>
+Interactive Educational Analytics Platform
 </p>
-
-</div>
 """, unsafe_allow_html=True)
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.header("Filters")
+st.sidebar.title("🔍 Filters")
 
 gender = st.sidebar.multiselect(
     "Gender",
     df["gender"].unique(),
     default=df["gender"].unique()
+)
+
+race = st.sidebar.multiselect(
+    "Race / Ethnicity",
+    df["race/ethnicity"].unique(),
+    default=df["race/ethnicity"].unique()
 )
 
 lunch = st.sidebar.multiselect(
@@ -74,177 +86,191 @@ prep = st.sidebar.multiselect(
     default=df["test preparation course"].unique()
 )
 
-math_range = st.sidebar.slider(
-    "Math Score Range",
-    int(df["math score"].min()),
-    int(df["math score"].max()),
-    (
-        int(df["math score"].min()),
-        int(df["math score"].max())
-    )
+parent = st.sidebar.multiselect(
+    "Parental Education",
+    df["parental level of education"].unique(),
+    default=df["parental level of education"].unique()
+)
+
+score_range = st.sidebar.slider(
+    "Average Score Range",
+    0,
+    100,
+    (0, 100)
 )
 
 # ---------------- FILTER DATA ----------------
 filtered_df = df[
-    (df["gender"].isin(gender))
-    & (df["lunch"].isin(lunch))
-    & (df["test preparation course"].isin(prep))
-    & (df["math score"].between(math_range[0], math_range[1]))
+    (df["gender"].isin(gender)) &
+    (df["race/ethnicity"].isin(race)) &
+    (df["lunch"].isin(lunch)) &
+    (df["test preparation course"].isin(prep)) &
+    (df["parental level of education"].isin(parent)) &
+    (df["average_score"].between(score_range[0], score_range[1]))
 ]
+
 # ---------------- KPI CARDS ----------------
-st.subheader("📌 KPI Summary")
+st.subheader("📊 KPI Summary")
 
-col1, col2, col3, col4 = st.columns(4)
+c1, c2, c3, c4 = st.columns(4)
 
-col1.metric("Total Students", len(filtered_df))
-col2.metric("Avg Math", round(filtered_df["math score"].mean(), 2))
-col3.metric("Avg Reading", round(filtered_df["reading score"].mean(), 2))
-col4.metric("Avg Writing", round(filtered_df["writing score"].mean(), 2))
+c1.metric("Students", len(filtered_df))
+c2.metric("Math Avg", round(filtered_df["math score"].mean(), 1))
+c3.metric("Reading Avg", round(filtered_df["reading score"].mean(), 1))
+c4.metric("Writing Avg", round(filtered_df["writing score"].mean(), 1))
 
 st.divider()
 
-# ---------------- ROW 1 ----------------
-c1, c2 = st.columns(2)
+# ---------------- CHARTS ROW 1 ----------------
+col1, col2 = st.columns(2)
 
-with c1:
-    st.subheader("Bar Chart")
-
-    fig, ax = plt.subplots()
-
-    sns.barplot(
-        data=filtered_df,
+with col1:
+    fig = px.bar(
+        filtered_df,
         x="gender",
         y="math score",
-        estimator="mean",
-        ax=ax
+        color="gender",
+        title="Average Math Score by Gender"
     )
+    st.plotly_chart(fig, use_container_width=True)
 
-    ax.set_title("Average Math Score by Gender")
-
-    st.pyplot(fig)
-
-with c2:
-    st.subheader("Pie Chart")
-
-    fig, ax = plt.subplots()
-
-    counts = filtered_df["gender"].value_counts()
-
-    ax.pie(
-        counts,
-        labels=counts.index,
-        autopct="%1.1f%%"
+with col2:
+    fig = px.pie(
+        filtered_df,
+        names="gender",
+        title="Gender Distribution"
     )
+    st.plotly_chart(fig, use_container_width=True)
 
-    ax.set_title("Gender Distribution")
+# ---------------- CHARTS ROW 2 ----------------
+col1, col2 = st.columns(2)
 
-    st.pyplot(fig)
-
-# ---------------- ROW 2 ----------------
-c1, c2 = st.columns(2)
-
-with c1:
-    st.subheader("Histogram")
-
-    fig, ax = plt.subplots()
-
-    sns.histplot(
-        filtered_df["math score"],
-        kde=True,
-        ax=ax
+with col1:
+    fig = px.histogram(
+        filtered_df,
+        x="average_score",
+        color="performance",
+        nbins=20,
+        title="Performance Distribution"
     )
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.pyplot(fig)
-
-with c2:
-    st.subheader("Count Plot")
-
-    fig, ax = plt.subplots()
-
-    sns.countplot(
-        data=filtered_df,
-        x="test preparation course",
-        ax=ax
-    )
-
-    plt.xticks(rotation=15)
-
-    st.pyplot(fig)
-
-# ---------------- ROW 3 ----------------
-c1, c2 = st.columns(2)
-
-with c1:
-    st.subheader("Scatter Plot")
-
-    fig, ax = plt.subplots()
-
-    sns.scatterplot(
-        data=filtered_df,
+with col2:
+    fig = px.scatter(
+        filtered_df,
         x="math score",
         y="reading score",
-        hue="gender",
-        ax=ax
+        color="performance",
+        size="writing score",
+        hover_data=["gender"],
+        title="Math vs Reading"
     )
-
-    st.pyplot(fig)
-
-with c2:
-    st.subheader("Box Plot")
-
-    fig, ax = plt.subplots()
-
-    sns.boxplot(
-        data=filtered_df,
-        x="gender",
-        y="writing score",
-        ax=ax
-    )
-
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 # ---------------- HEATMAP ----------------
-st.subheader("Heatmap")
+st.subheader("🔥 Correlation Heatmap")
 
 corr = filtered_df[
     ["math score", "reading score", "writing score"]
 ].corr()
 
-fig, ax = plt.subplots(figsize=(8,5))
-
-sns.heatmap(
+fig = px.imshow(
     corr,
-    annot=True,
-    cmap="coolwarm",
-    ax=ax
+    text_auto=True,
+    aspect="auto"
 )
 
-st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)
 
-# ---------------- AREA CHART ----------------
-st.subheader("Area Chart")
+# ---------------- RADAR CHART ----------------
+st.subheader("🎯 Performance Radar")
 
-st.area_chart(
-    filtered_df[
-        ["math score", "reading score", "writing score"]
+avg_math = filtered_df["math score"].mean()
+avg_read = filtered_df["reading score"].mean()
+avg_write = filtered_df["writing score"].mean()
+
+radar = go.Figure()
+
+radar.add_trace(go.Scatterpolar(
+    r=[avg_math, avg_read, avg_write],
+    theta=["Math", "Reading", "Writing"],
+    fill='toself'
+))
+
+radar.update_layout(
+    polar=dict(radialaxis=dict(visible=True)),
+    showlegend=False
+)
+
+st.plotly_chart(radar, use_container_width=True)
+
+# ---------------- TREEMAP ----------------
+st.subheader("🌳 Treemap")
+
+fig = px.treemap(
+    filtered_df,
+    path=["gender", "performance"],
+    values="average_score"
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ---------------- SUNBURST ----------------
+st.subheader("☀️ Sunburst Analysis")
+
+fig = px.sunburst(
+    filtered_df,
+    path=[
+        "gender",
+        "lunch",
+        "test preparation course"
     ]
 )
 
-# ---------------- VIOLIN PLOT ----------------
-st.subheader("Violin Plot")
+st.plotly_chart(fig, use_container_width=True)
 
-fig, ax = plt.subplots()
+# ---------------- TOP STUDENTS ----------------
+st.subheader("🏆 Top 10 Students")
 
-sns.violinplot(
-    data=filtered_df,
-    x="gender",
-    y="math score",
-    ax=ax
+top_students = filtered_df.sort_values(
+    "average_score",
+    ascending=False
+).head(10)
+
+st.dataframe(top_students, use_container_width=True)
+
+# ---------------- AI INSIGHTS ----------------
+st.subheader("🤖 AI Insights")
+
+best_subject = max(
+    {
+        "Math": filtered_df["math score"].mean(),
+        "Reading": filtered_df["reading score"].mean(),
+        "Writing": filtered_df["writing score"].mean()
+    },
+    key=lambda x: {
+        "Math": filtered_df["math score"].mean(),
+        "Reading": filtered_df["reading score"].mean(),
+        "Writing": filtered_df["writing score"].mean()
+    }[x]
 )
 
-st.pyplot(fig)
+st.success(
+    f"Students perform best in {best_subject}. "
+    f"Average overall score is "
+    f"{round(filtered_df['average_score'].mean(),2)}."
+)
 
-# ---------------- DATA TABLE ----------------
-st.subheader("Dataset Preview")
+# ---------------- DATA PREVIEW ----------------
+st.subheader("📄 Dataset Preview")
+st.dataframe(filtered_df, use_container_width=True)
 
-st.dataframe(filtered_df)
+# ---------------- DOWNLOAD ----------------
+csv = filtered_df.to_csv(index=False)
+
+st.download_button(
+    "📥 Download Filtered Data",
+    csv,
+    "student_performance.csv",
+    "text/csv"
+)
